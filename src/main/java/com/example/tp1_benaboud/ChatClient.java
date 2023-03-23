@@ -8,9 +8,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,6 +24,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class ChatClient extends Application{
@@ -32,55 +35,53 @@ public class ChatClient extends Application{
 	
 	public void start(Stage primaryStge) throws Exception {
 		primaryStge.setTitle("Client Chat");
-		BorderPane borderPane = new BorderPane();
+		VBox root = new VBox();
+		root.setSpacing(10);
+		root.setPadding(new Insets(10));
+		root.setBackground(new Background(new BackgroundFill(Color.HOTPINK, null, null)));
+
+		HBox hBox = new HBox();
+		hBox.setSpacing(20);
+		hBox.setAlignment(Pos.CENTER);
 		Label labelHost = new Label("Host:");
 		TextField textFieldHost = new TextField("localhost");
 		Label labelPort = new Label("Port:");
-		TextField textFieldPort = new TextField("1234");
-		Button buttonConnector = new Button("Connecter");
+		TextField textFieldPort = new TextField("1996");
+		Button buttonConnector = new Button("Connect");
+		labelHost.setFont(Font.font("Arial", 16));
+		labelPort.setFont(Font.font("Arial",  16));
 
-		HBox hBox = new HBox();
-		hBox.setSpacing(10);
-		hBox.setPadding(new Insets(10));
-		hBox.setBackground(new Background(new BackgroundFill(Color.AQUA, null, null)));
-		hBox.getChildren().addAll(labelHost,textFieldHost,labelPort,textFieldPort,buttonConnector);
-		borderPane.setTop(hBox);
-		VBox vBox2 = new VBox();
-		vBox2.setSpacing(10);
-		hBox.setPadding(new Insets(10));
+		hBox.getChildren().addAll(labelHost, textFieldHost, labelPort, textFieldPort, buttonConnector);
 
-		ObservableList<String> listModel=FXCollections.observableArrayList();
-		ListView<String> listView = new ListView<String>(listModel);
-		borderPane.setCenter(listView);
-		vBox2.getChildren().add(listView);
-		borderPane.setCenter(vBox2);
-		Scene scene = new Scene(borderPane, 800, 600);
+		ListView<String> listView = new ListView<>();
+		listView.setPrefHeight(500);
+		root.getChildren().addAll(hBox, listView);
+
+		Scene scene = new Scene(root, 800, 600);
 		primaryStge.setScene(scene);
 		primaryStge.show();
-		
+
 		buttonConnector.setOnAction((event)->{
 			String host = textFieldHost.getText();
 			int port = Integer.parseInt(textFieldPort.getText());
 			try {
 				Socket socket = new Socket(host,port);
-				InputStream inputStream = socket.getInputStream();
-				InputStreamReader isr = new InputStreamReader(inputStream);
-				BufferedReader bufferedReader = new BufferedReader(isr);
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 				new Thread(()->{
 					try {
 						while(true) {
 							String response = bufferedReader.readLine();
-							listModel.add(response);
+							Platform.runLater(() -> listView.getItems().add(response));
 						}
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}).start();
 			} catch (IOException e) {
-				 e.printStackTrace();
+				e.printStackTrace();
 			}
 		});
+
 	}
 }
