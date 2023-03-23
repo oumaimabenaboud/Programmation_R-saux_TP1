@@ -15,6 +15,7 @@
 
       - Créer un client Python 
 <img width="869" alt="image" src="https://user-images.githubusercontent.com/120368654/227368328-722d7d78-2602-42c9-b572-54c844a7d983.png">
+
 <img width="892" alt="image" src="https://user-images.githubusercontent.com/120368654/227368737-43406f21-3365-4580-97f4-839f6fbed876.png">
 
 2-  Modèle Single Thread avec Non Blocking IO (java.nio) : Développer un serveur de Single Thread  utilisant des entrées sorties non bloquantes 
